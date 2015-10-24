@@ -24,8 +24,22 @@ class FuncMemory
     // You could not create the object
     // using this default constructor
     FuncMemory(){}
+	uint8 *** arr_of_sets_priv;
+	uint64 num_of_sets_priv;
+	uint64 num_of_pages_priv;
+	uint64 num_of_bytes_priv;
+	uint64 addr_of_text_section_priv;
+	uint64 offset_bits_priv;
+	uint64 page_bits_priv;
+	uint64 set_bits_priv;
+	
 
 public:
+
+	void getCoordsByAddr( uint64  addr,
+						  uint64& set,
+						  uint64& page,
+						  uint64& offset) const;
 
     FuncMemory ( const char* executable_file_name,
                  uint64 addr_size = 32,

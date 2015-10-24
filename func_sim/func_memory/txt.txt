@@ -1,0 +1,131 @@
+g++ -c func_memory.cpp -I ./ -I ../..//common/ -I ../..//func_sim/elf_parser/
+g++ -c unit_test.cpp -I ../..//libs/gtest-1.6.0/include -I ./ -I ../..//common/ -I ../..//func_sim/elf_parser/ 
+g++ unit_test.o func_memory.o elf_parser.o -lpthread ../..//libs/gtest-1.6.0/libgtest.a -o unit_test -l elf  ../..//libs/gtest-1.6.0/libgtest.a
+---------------------------------
+unit_test is built SUCCESSFULLY
+
+Running ./unit_test
+
+[==========] Running 5 tests from 2 test cases.
+[----------] Global test environment set-up.
+[----------] 1 test from Func_memory_init
+[ RUN      ] Func_memory_init.Process_Wrong_Args_Of_Constr
+
+Hello0!
+
+
+Hello1! num_of_sets_priv==0xc9c1d0
+
+
+Hello2!
+
+
+Hello0!
+
+
+Hello1! num_of_sets_priv==0x7f210601b010
+
+
+Hello2!
+
+
+Hello0!
+
+
+Hello1! num_of_sets_priv==0x15a91d0
+
+
+Hello2!
+
+
+Hello0!
+
+
+Hello1! num_of_sets_priv==0x7f065c5f8010
+
+
+Hello2!
+
+
+Hello0!
+
+
+Hello1! num_of_sets_priv==0x15b0d20
+
+
+Hello2!
+
+[       OK ] Func_memory_init.Process_Wrong_Args_Of_Constr (6 ms)
+[----------] 1 test from Func_memory_init (6 ms total)
+
+[----------] 4 tests from Func_memory
+[ RUN      ] Func_memory.StartPC_Method_Test
+
+Hello0!
+
+
+Hello1! num_of_sets_priv==0xca28a0
+
+
+Hello2!
+
+[       OK ] Func_memory.StartPC_Method_Test (0 ms)
+[ RUN      ] Func_memory.Read_Method_Test
+
+Hello0!
+
+
+Hello1! num_of_sets_priv==0xca9100
+
+
+Hello2!
+
+unit_test.cpp:47: Failure
+Value of: right_ret
+  Actual: 50462976
+Expected: func_mem.read( dataSectAddr)
+Which is: 0
+[  FAILED  ] Func_memory.Read_Method_Test (0 ms)
+[ RUN      ] Func_memory.Write_Read_Initialized_Mem_Test
+
+Hello0!
+
+
+Hello1! num_of_sets_priv==0xcae130
+
+
+Hello2!
+
+unit_test.cpp:81: Failure
+Value of: right_ret
+  Actual: 50462977
+Expected: func_mem.read( data_sect_addr)
+Which is: 0
+[  FAILED  ] Func_memory.Write_Read_Initialized_Mem_Test (0 ms)
+[ RUN      ] Func_memory.Write_Read_Not_Initialized_Mem_Test
+
+Hello0!
+
+
+Hello1! num_of_sets_priv==0xcb3820
+
+
+Hello2!
+
+unit_test.cpp:107: Failure
+Value of: right_ret
+  Actual: 256
+Expected: func_mem.read( write_addr, sizeof( uint16))
+Which is: 0
+[  FAILED  ] Func_memory.Write_Read_Not_Initialized_Mem_Test (0 ms)
+[----------] 4 tests from Func_memory (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 2 test cases ran. (6 ms total)
+[  PASSED  ] 2 tests.
+[  FAILED  ] 3 tests, listed below:
+[  FAILED  ] Func_memory.Read_Method_Test
+[  FAILED  ] Func_memory.Write_Read_Initialized_Mem_Test
+[  FAILED  ] Func_memory.Write_Read_Not_Initialized_Mem_Test
+
+ 3 FAILED TESTS
