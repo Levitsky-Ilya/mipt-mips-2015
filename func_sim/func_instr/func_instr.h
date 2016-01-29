@@ -20,18 +20,18 @@
 class FuncInstr
 {
 public:
-    FuncInstr( uint32 bytes, uint PC = 0);
+    FuncInstr( uint32 bytes, uint32 PC = 0);
     std::string Dump( std::string indent = " ") const;
     int get_src1_num_index() const;
     int get_src2_num_index() const;
     int get_dest_num_index() const;
     
-    int isLoad() const { return Operation == OUT_I_LOAD;}
-    int isStore() const { return Operation == OUT_I_STORE;}
-    int isRJump() const { return Operation == OUT_R_JUMP;}
+    int isLoad() const { return operation == OUT_I_LOAD;}
+    int isStore() const { return operation == OUT_I_STORE;}
+    int isRJump() const { return operation == OUT_R_JUMP;}
     
 	void execute();
-	void setDump
+	void setDump();
 	void setNewPC();
     
 	uint32 v_src1;
@@ -43,7 +43,7 @@ public:
 	uint8 mem_bytes;
 	int mem_sign;
 	uint32 new_PC;
-	const uint PC;
+	const uint32 PC;
 
 private:
     enum Format
@@ -132,9 +132,9 @@ private:
 						HI = ( static_cast< uint64>(v_src1) *
 						static_cast< uint64>(v_src2)) >> 0x20;}
 	void div()		{ LO = v_src1 / v_src2; HI = v_src1 % v_src2;}
-	void mfhi()		{ v_dest = HI;}
+	void mfhi()		{ v_dst = HI;}
 	void mthi()		{ HI = v_src1;}
-	void mflo()		{ v_dest = LO;}
+	void mflo()		{ v_dst = LO;}
 	void mtlo()		{ LO = v_src1;}
 	void sllv()		{ v_dst = v_src1 << v_src2;}
 	void srlv()		{ v_dst = v_src1 >> v_src2;}
@@ -142,7 +142,7 @@ private:
 	void sll()		{ v_dst = v_src1 << instr.asR.shamt;}
 	void srl()		{ v_dst = v_src1 >> instr.asR.shamt;}
 	void sra()		{ v_dst = (int32)v_src1 >> (int32)instr.asR.shamt;}
-	void lui 		{ v_dst = instr.asI.imm << 16;}
+	void lui()		{ v_dst = instr.asI.imm << 16;}
 	void less()		{ v_dst = v_src1 < v_src2;}
 	void lessi()	{ v_dst = v_src1 < instr.asI.imm;}
 	void band()		{ v_dst = v_src1 && v_src2;}
@@ -157,9 +157,9 @@ private:
 	void blez()		{ brch_taken = ( instr.asI.rs <= 0);}
 	void bgtz()		{ brch_taken = ( instr.asI.rs > 0);}
 	void j()		{ }
-	void jal()		{ v_dest = PC + 4;}
+	void jal()		{ v_dst = PC + 4;}
 	void jr()		{ }
-	void jral()		{ v_dest = PC + 4;}
+	void jalr()		{ v_dst = PC + 4;}
 	void clc_addr()	{ mem_addr = instr.asI.rs + instr.asI.imm;}
 	void lb()		{ this->clc_addr(); mem_bytes = 1; mem_sign = 1;}
 	void lh()		{ this->clc_addr(); mem_bytes = 2; mem_sign = 1;}

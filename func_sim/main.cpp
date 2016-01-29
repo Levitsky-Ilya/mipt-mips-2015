@@ -5,6 +5,8 @@
  */
 
 #include <iostream>
+#include <stdlib.h>
+#include <func_memory.h>
 #include <func_sim.h>
 
 using namespace std;

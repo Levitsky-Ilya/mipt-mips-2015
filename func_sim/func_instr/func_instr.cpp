@@ -22,7 +22,7 @@ const FuncInstr::ISAEntry FuncInstr::isaTable[] =
     { "subu",   0x0, 0x23,  FORMAT_R, OUT_R_ARITHM,  &FuncInstr::sub},
     { "addi",   0x8, 0x0,   FORMAT_I, OUT_I_ARITHM,  &FuncInstr::addi},
     { "addiu",  0x9, 0x0,   FORMAT_I, OUT_I_ARITHM,  &FuncInstr::addi},
-    { "mult",   0x0, 0x18,  FORMAT_R, OUT_R_ARITHM,  &FuncInstr::mult,    
+    { "mult",   0x0, 0x18,  FORMAT_R, OUT_R_ARITHM,  &FuncInstr::mul},    
     { "multu",  0x0, 0x19,  FORMAT_R, OUT_R_ARITHM,  &FuncInstr::mul},
     { "div",    0x0, 0x1A,  FORMAT_R, OUT_R_ARITHM,  &FuncInstr::div},
     { "divu",   0x0, 0x1B,  FORMAT_R, OUT_R_ARITHM,  &FuncInstr::div},
@@ -85,7 +85,7 @@ const char *FuncInstr::regTable[] =
     "ra"
 };
 
-FuncInstr::FuncInstr( uint32 bytes, uint PC(PC)) : instr(bytes)
+FuncInstr::FuncInstr( uint32 bytes, uint32 PC) : instr( bytes), PC( PC)
 {
     initFormat(); 
     switch ( format)
@@ -300,25 +300,21 @@ void FuncInstr::setNewPC()
 	{
 		this->new_PC = (this->PC & 0xf0000000) | (instr.asJ.imm << 2);
 	}
-	if( operation == OUT_R_JUMP)
-	{
-		this->new_PC = mem->readinstr.asR.rs;
-	}
 }
 
-void FuncInstr::setDump();
+void FuncInstr::setDump()
 {
 	ostringstream oss;
     oss << isaTable[isaNum].name;
     switch ( operation)
     {
 		case OUT_R_ARITHM:
-            oss << " $" << regTable[instr.asR.rd] << '[' << v_dest << ']'
+            oss << " $" << regTable[instr.asR.rd] << '[' << v_dst << ']'
 				<< ", $"<< regTable[instr.asR.rs] << '[' << v_src1 << ']'
 				<< ", $"<< regTable[instr.asR.rt] << '[' << v_src2 << ']';
             break;
         case OUT_R_SHAMT:
-            oss << " $" << regTable[instr.asR.rd] << '[' << v_dest << ']'
+            oss << " $" << regTable[instr.asR.rd] << '[' << v_dst << ']'
 				<< ", $"<< regTable[instr.asR.rt] << '[' << v_src1 << ']'
                 << ", " << dec << instr.asR.shamt;
             break;
@@ -328,7 +324,7 @@ void FuncInstr::setDump();
         case OUT_R_SPECIAL:
             break;
         case OUT_I_ARITHM:
-            oss << regTable[instr.asI.rt] << '[' << v_dest << ']'
+            oss << regTable[instr.asI.rt] << '[' << v_dst << ']'
 				<< ", $"<< regTable[instr.asI.rs] << '[' << v_src1 << ']'
                 << ", " << hex << "0x" << static_cast< signed int>
                 ( instr.asI.imm) << dec;
@@ -340,9 +336,9 @@ void FuncInstr::setDump();
                 ( instr.asI.imm) << dec;
             break;
         case OUT_I_LOAD:
-            oss << regTable[instr.asI.rt] << '[' << v_dest << ']' << ", "
+            oss << regTable[instr.asI.rt] << '[' << v_dst << ']' << ", "
                 << hex << "0x" << static_cast< signed int>( instr.asI.imm) 
-                << dec << "($" << regTable[instr.asI.rs] << 
+                << dec << "($" << regTable[instr.asI.rs]
                 << '[' << v_src1 << ']' << ")";
             break;
         case OUT_I_STORE:

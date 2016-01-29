@@ -23,11 +23,11 @@ MIPS::~MIPS( void)
 	delete rf;
 }
 
-void MIPS::run( const string& tr, uint instr_to_run);
+void MIPS::run( const string& tr, uint32 instr_to_run)
 {
-	mem = new FuncInstr( tr.c_str());
+	mem = new FuncMemory( tr.c_str());
 	this->PC = mem->startPC();
-	for( uint i = 0; i < instr_to_run; ++i)
+	for( uint32 i = 0; i < instr_to_run; ++i)
 	{
 		/***FETCH***/
 		uint32 instr_bytes = fetch();
@@ -36,8 +36,8 @@ void MIPS::run( const string& tr, uint instr_to_run);
 		read_src_and_dest( curr_instr);
 		/***EXECUTE***/
 		curr_instr.execute();
-		if( curr_instr.isRJump)
-			curr_instr.new_PC = rf->read( static_cat< RegNum>
+		if( curr_instr.isRJump())
+			curr_instr.new_PC = rf->read( static_cast< RegNum>
 				( curr_instr.get_src1_num_index()));
 		/***MEMORY ACCESS***/
 		this->ld_st( curr_instr);
@@ -46,18 +46,18 @@ void MIPS::run( const string& tr, uint instr_to_run);
 		/***UPDATE PC***/
 		updatePC( curr_instr);
 		/***DUMP***/
-		cout << curr_instr.Dump << endl;
+		cout << curr_instr.Dump() << endl;
 	}
 }
 
 void MIPS::read_src_and_dest( FuncInstr& instr)
 {
 	instr.v_src1 = rf->read( static_cast< RegNum>
-		instr.get_src1_num_index());
+		( instr.get_src1_num_index()));
 	instr.v_src2 = rf->read( static_cast< RegNum>
-		instr.get_src2_num_index());
-	instr.v_dest = rf->read( static_cast< RegNum>
-		instr.get_dest_num_index());
+		( instr.get_src2_num_index()));
+	instr.v_dst = rf->read( static_cast< RegNum>
+		( instr.get_dest_num_index()));
 	instr.HI = HI;
 	instr.LO = LO;
 			
@@ -65,7 +65,7 @@ void MIPS::read_src_and_dest( FuncInstr& instr)
 
 RF::RF()
 {
-	for (int i = 1; i << MAX_REG; ++i)
+	for (int i = 1; i < MAX_REG; ++i)
 		reset(static_cast< RegNum>(i));
 	array[ ZERO] = 0;
 }
@@ -77,11 +77,11 @@ uint32 RF::read( RegNum index) const
 	return array[index];
 }
 
-uint32 RF::write( RegNum index, uint32 data) const
+void RF::write( RegNum index, uint32 data)
 {
 	if(index == ZERO)
 	{
-		cout << "ERROR.Writing to $zero" << endl;
+		return;
 	}
 	array[index] = data;
 }
@@ -91,7 +91,7 @@ void RF::reset( RegNum index)
 	array[ index] = 0;
 }
 
-void MIPS::ld_st( FuncIntr& intsr)
+void MIPS::ld_st( FuncInstr& instr)
 {
 	if( instr.isLoad()) load( instr);
 	if( instr.isStore()) store( instr);
@@ -112,7 +112,7 @@ void MIPS::store( const FuncInstr& instr)
 void MIPS::wb( const FuncInstr& instr)
 {
 	rf->write( static_cast< RegNum>( instr.get_dest_num_index()),
-		instr.v_dest);
+		instr.v_dst);
 	HI = instr.HI;
 	LO = instr.LO;
 }

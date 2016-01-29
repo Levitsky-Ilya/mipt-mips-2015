@@ -5,7 +5,7 @@
 #
 
 # specifying relative path to the TRUNK
-TRUNK= ../../
+TRUNK= ../
 
 # paths to look for headers
 vpath %.h $(TRUNK)/common
