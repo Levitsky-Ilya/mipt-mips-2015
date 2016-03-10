@@ -1,65 +1,51 @@
 /*
- * func_sim.h
- * @author Ilya Levitsky ilya.levitskiy@phystech.edu
- * Copyright 2016 MIPT-MIPS
+ * func_sim.cpp - mips single-cycle simulator
+ * @author Pavel Kryukov pavel.kryukov@phystech.edu
+ * Copyright 2015 MIPT-MIPS 
  */
-
 
 #ifndef FUNC_SIM_H
 #define FUNC_SIM_H
 
-// Generic C++
-#include <string>
-#include <cassert>
-
-// MIPT-MIPS modules
-#include <types.h>
 #include <func_instr.h>
-#include <elf_parser.h>
+#include <func_memory.h>
+#include <rf.h>
 
-enum RegNum {
-      ZERO,
-      AT,
-      V0, V1,
-      A0, A1, A2, A3,
-      T0, T1, T2, T3, T4, T5, T6, T7,
-      S0, S1, S2, S3, S4, S5, S6, S7,
-      T8, T9,
-      K0, K1,
-      GP, SP,
-      S8, RA,
-      MAX_REG
+class MIPS
+{
+    private:
+        RF* rf;
+        uint32 PC;
+        FuncMemory* mem;
+
+        uint32 fetch() const { return mem->read(PC); }
+        void read_src(FuncInstr& instr) const {
+            rf->read_src1(instr); 
+            rf->read_src2(instr); 
+	    }
+
+        void load(FuncInstr& instr) const {
+            instr.set_v_dst(mem->read(instr.get_mem_addr(), instr.get_mem_size()));
+        }
+
+        void store(const FuncInstr& instr) {
+            mem->write(instr.get_v_src2(), instr.get_mem_addr(), instr.get_mem_size());
+        }
+
+	    void load_store(FuncInstr& instr) {
+            if (instr.is_load())
+                load(instr);
+            else if (instr.is_store())
+                store(instr);
+        }
+
+        void wb(const FuncInstr& instr) {
+            rf->write_dst(instr);
+        }
+   public:
+        MIPS();
+        void run(const std::string& tr, uint32 instrs_to_run);
+        ~MIPS();
 };
-
-class RF {
-		uint32 array[MAX_REG];
-	public:
-		RF();
-		~RF();
-		uint32 read( RegNum index) const;
-		void write( RegNum index, uint32 data);
-		void reset( RegNum index); // clears register to 0 value
-};
-
-class MIPS {
-          // storages of internal state
-          RF* rf;
-          uint32 PC;
-          uint32 HI;
-          uint32 LO;
-          FuncMemory* mem;
-          
-          void read_src_and_dest( FuncInstr& instr);
-          void load( FuncInstr& instr);
-          void store( const FuncInstr& instr);
-          void ld_st( FuncInstr& instr);
-          void wb( const FuncInstr& instr);
-     public:
-          MIPS();
-          ~MIPS();
-          void run( const string&, uint32 instr_to_run);
-          uint32 fetch() const { return mem->read( PC);}
-          void updatePC( const FuncInstr& instr) { PC = instr.new_PC; }
-};
-
-#endif //FUNC_SIM_H
+            
+#endif
