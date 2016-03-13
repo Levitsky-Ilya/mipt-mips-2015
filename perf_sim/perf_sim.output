@@ -1,0 +1,7 @@
+lui $t3, 0x41	 [ $t3 = 0x410000]
+addiu $t3, $t3, 0xcc	 [ $t3 = 0x4100cc]
+lw $t2, 0x4($t3)	 [ $t2 = 0xb]
+sll $zero, $zero, 0
+sll $zero, $zero, 0
+sll $zero, $zero, 0
+sll $zero, $zero, 0
